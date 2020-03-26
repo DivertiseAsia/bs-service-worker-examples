@@ -70,8 +70,7 @@ let make = () => {
     }
   };
   <div>
-    <h1>{string("Minimal Service Worker Demo")}</h1>
-    <a href="features.html">{string("See Features")}</a>
+    <h1>{string("Minimal Demo")}</h1>
     <h2>{string("Your Browser:")}</h2>
     <table>
       <tbody>
@@ -87,5 +86,12 @@ let make = () => {
         </tr>
       </tbody>
     </table>
+    <h2>{string("Other Demos")}</h2>
+    <ul>
+      <li><a href="index.html">{string("Current:Minimal Demo")}</a></li>
+      <li><a href="demo-full.html">{string("Full Demo (all of the features)")}</a></li>
+      <li><a href="indexJs.html">{string("Full Demo JS (JS equilvalent of Full Demo)")}</a></li>
+      <li><a href="features.html">{string("See Features (this page can be cached)")}</a></li>
+    </ul>
   </div>
 }

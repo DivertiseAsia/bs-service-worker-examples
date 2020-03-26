@@ -13,11 +13,19 @@
       }
     };
   </script>
+  <div id="online" style="display:none;">
+    Note: this demo is meant for local usage. Please see <a href="/">here</a> for more details.
+  </div>
   <div id="demo"></div>
 
   <!-- This is https://github.com/marijnh/moduleserve, the secret sauce that allows us not need to bundle things during development, and have instantaneous iteration feedback, without any hot-reloading or extra build pipeline needed. -->
-  <script src="/moduleserve/load.js" data-module="/src/Demo/DemoIndex.bs.js"></script>
+  <script src="/moduleserve/load.js" data-module="/src/DemoIndex.bs.js"></script>
   <!-- Our little watcher. Super clean. Check it out! -->
   <script src="/watcher.js"></script>
+  <script>
+    if (window.location.host === "divertiseasia.github.io") {
+      document.getElementById("online").style = "display: block;"
+    }
+  </script>
 </body>
 </html>
