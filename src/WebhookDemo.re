@@ -147,6 +147,8 @@ let make = () => {
         }
       }
     }
+    <h2>{string("Offline Feature")}</h2>
+    <p>{string("Make sure you have the service worker still registered!" )} <a href="features.html#offline">{string("Click this link! ")}</a></p>
     <h2>{string("Other Demos")}</h2>
     <ul>
       <li><a href="index.html">{string("Minimal Demo")}</a></li>

@@ -7,12 +7,31 @@
 <body>
   <h1>Feature List v0.0.1</h1>
   <ul>
-    <li>Register</li>
-    <li>Unregister</li>
+    <li>Register & Unregister</li>
+    <li>Offline*</li>
   </ul>
-  <h2>Note</h2>
-  <p>This page may be cached!! So you can view it offline.</p>
-  <p>For this project we have a simple service worker, so you may need to unregister your service worker to see an update! For your projects it may be good to use <a href="https://developers.google.com/web/tools/workbox/modules/workbox-sw">Workbox</a></p>
+  <p>* - Techncially free from Service Worker</p>
+  <h2 id="offline">Offline</h2>
+  <p>A really cool feature about service workers is that they allow pages and images to work offline!</p>
+  <p>As a <em>dev</em>: To use this feature you have install your service worker (if using BuckleScript you can use this handy <a href="https://github.com/DivertiseAsia/bs-service-worker">library</a>).</p>
+  <p>As a <em>user/dev</em>: To see this feature in action you we've set up the service worker on this domain to use this page. Follow the steps below</p>
+  <ol>
+    <li>Make sure the service worker was installed by visiting one of the demo pages</li>
+    <li>Set your Browser Offline (Airplane mode works too or see image below)</li>
+    <ul>
+      <li><img src="images/markingoffline.png" height="200px" title="How to mark offline" alt="Developer Console, Application Tab, UnCheck Offline by Service Worker" /></li>
+      <li>It should look very similar to the above when you're done</li>
+    </ul>
+    <li>Now refresh!</li>
+    <li>You should still be able to see this page AND both images.</li>
+    <ul>
+      <li><img src="images/crabs.jpg" title="Some crabs" alt="Picture of crabs"/></li>
+      <li>This picture is hosted via the github website. So if you saw it before reload it's still here</li>
+    </ul>
+  </ol>
+  <p>For your projects it may be good to use <a href="https://developers.google.com/web/tools/workbox/modules/workbox-sw">Workbox</a> as this caching can be get a bit dicey</p>
+  <h2>Is this Page out of date?</h2>
+  <p>If this page doesn't look up to date - please unregister the service worker on a demo page and then come visit here again! This is due to the <a href="#offline">offline</a> feature of service workers. Not all service workers function this way but for our simple demo this one does</p>
   <h2>Other Demos</h2>
   <ul>
     <li><a href="index.html">Minimal Demo</a></li>

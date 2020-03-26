@@ -1,6 +1,8 @@
-var CACHE_NAME = 'my-site-cache-v1';
+var CACHE_NAME = 'my-site-cache-v2';
 var urlsToCache = [
-  'features.html'
+  'features.html',
+  'markingoffline.png',
+  'crabs.jpg'
 ];
 
 self.addEventListener('install', function(event) {
