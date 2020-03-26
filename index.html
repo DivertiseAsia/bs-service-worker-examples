@@ -13,11 +13,42 @@
       }
     };
   </script>
+  <div id="online" style="display:none;">
+    <h1>How can we help?</h1>
+    <p>This is the main demo, but it's intended for local usage.</p>
+    <p>If visiting at divertiseasia.github.io/bs-service-worker-examples, you should download the project and run it locally by visiting the <a href="https://github.com/DivertiseAsia/bs-service-worker-examples">GitHub Project Page</a>
+    <p>If you really want to see something now - you can see the <a href="indexJS.html">the JS Version</a>, which showcases the JS equilvalents the library has.</p>
+    <h1>By the Way</h1>
+    <p><a href="https://github.com/DivertiseAsia/bs-service-worker">Library Page</a></p>
+    <p>Here's the getting started sample in case you've been looking for:</p>
+    <pre>
+      <code>
+        if (ServiceWorker.isSupported()) {
+          ServiceWorker.windowAddEventListener("load", () => {
+            Js.Promise.(ServiceWorker.register("demo-sw.js")
+              |> then_((b:ServiceWorker.ServiceWorkerRegistration.t) => {
+                resolve(Some(b));
+              })
+              |> catch(e => {
+                Js.log2("[App] ServiceWorker registration failed (expected): ", e);
+                resolve(None)
+              })
+            ) |> ignore;
+          })
+        }
+      </code>
+    </pre>
+  </div>
   <div id="demo"></div>
 
   <!-- This is https://github.com/marijnh/moduleserve, the secret sauce that allows us not need to bundle things during development, and have instantaneous iteration feedback, without any hot-reloading or extra build pipeline needed. -->
   <script src="/moduleserve/load.js" data-module="/src/DemoMinimalIndex.bs.js"></script>
   <!-- Our little watcher. Super clean. Check it out! -->
   <script src="/watcher.js"></script>
+  <script>
+    if (window.location.host === "divertiseasia.github.io") {
+      document.getElementById("online").style = "display: block;"
+    }
+  </script>
 </body>
 </html>
