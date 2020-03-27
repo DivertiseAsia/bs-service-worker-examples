@@ -8,7 +8,6 @@ type state = {
 };
 
 type action =
-  | Supported
   | Registered(ServiceWorker.Registration.t)
   | UnregisterSuccess;
 
@@ -18,47 +17,55 @@ let successIndicator = (condition:bool, id:string) => {
   </span>
 };
 
+switch(ServiceWorker.maybeServiceWorker) {
+  | None => {
+    Js.log("[App] Browser does *not* support service workers");
+  }
+  | Some(worker) => {
+    Js.log("[App] Browser supports service workers");
+    open ServiceWorker;
+    Js.Promise.(worker->registerOnLoad("demo-sw.js")
+      |> then_((b:ServiceWorker.Registration.t) => {
+        Js.log("[App] ServiceWorker registration successful with scope: " ++ b##scope);
+        resolve(Some(b));
+      })
+      |> catch(e => {
+        Js.log2("[App] ServiceWorker registration failed: ", e);
+        resolve(None)
+      })
+    ) |> ignore;
+  }
+};
+
 [@react.component]
 let make = () => {
   let (state, dispatch) = React.useReducer(
     (state, action) =>
       switch (action) {
-        | Supported => {...state, supported: true}
         | Registered(registration) => {...state, registration: Some(registration)}
         | UnregisterSuccess => {...state, unregisterSuccess: true}
       },
       {
-        supported: false, 
+        supported: ServiceWorker.maybeServiceWorker !== None, 
         registration: None,
         unregisterSuccess: false,
       }
   );
-  React.useEffect0(() => {
-    switch(ServiceWorker.maybeServiceWorker) {
-      | None => {
-        Js.log("[App] Browser does *not* support service workers");
-      }
-      | Some(worker) => {
-        Js.log("[App] Browser supports service workers");
-        dispatch(Supported);
-        open ServiceWorker;
-        Window.addEventListener("load", () => {
-          Js.Promise.(worker->register("demo-sw.js")
-            |> then_((b:ServiceWorker.Registration.t) => {
-              Js.log("[App] ServiceWorker registration successful with scope: " ++ b##scope);
-              dispatch(Registered(b))
-              resolve(Some(b));
-            })
-            |> catch(e => {
-              Js.log2("[App] ServiceWorker registration failed: ", e);
-              resolve(None)
-            })
-          ) |> ignore;
-        });
-      }
-    };
-    None;
-  });
+  switch(ServiceWorker.maybeServiceWorker, state.registration) {
+    | (Some(worker), None) => {
+      open ServiceWorker;
+      Js.Promise.(worker->getRegistration
+        |> then_((b:ServiceWorker.Registration.t) => {
+          dispatch(Registered(b))
+          resolve(Some(b));
+        })
+        |> catch(_ => {
+          resolve(None)
+        })
+      ) |> ignore;
+    }
+    | _ => ()
+  };
   let unregisterServiceWorker = (_) => {
     switch (state.registration) {
       | Some(registration) => {
