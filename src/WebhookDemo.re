@@ -4,14 +4,14 @@ open DivertiseasiaBsServiceWorker;
 type state = {
   supported: bool,
   registerSuccess: bool,
-  registration: option(ServiceWorker.ServiceWorkerRegistration.t),
+  registration: option(ServiceWorker.Registration.t),
   failureSuccess: bool,
   unregisterSuccess: bool,
 };
 
 type action =
   | Supported(bool)
-  | Registered(ServiceWorker.ServiceWorkerRegistration.t)
+  | Registered(ServiceWorker.Registration.t)
   | UnregisterSuccess
   | SuccessfulFailure;
 
@@ -40,42 +40,46 @@ let make = () => {
       }
   );
   React.useEffect0(() => {
-    if (ServiceWorker.isSupported()) {
-      Js.log("[App] Browser supports service workers");
-      dispatch(Supported(true));
-      ServiceWorker.windowAddEventListener("load", () => {
-        Js.Promise.(ServiceWorker.register("demo-sw.js")
-          |> then_((b:ServiceWorker.ServiceWorkerRegistration.t) => {
-            Js.log("[App] ServiceWorker registration successful with scope: " ++ b#scope);
-            dispatch(Registered(b))
-            resolve(Some(b));
-          })
-          |> catch(e => {
-            Js.log2("[App] ServiceWorker registration failed: ", e);
-            resolve(None)
-          })
-        ) |> ignore;
-        Js.Promise.(ServiceWorker.registerJs("nonexistant-sw.js")
-          |> then_((b:ServiceWorker.ServiceWorkerRegistration.js) => {
-            resolve(Some(b));
-          })
-          |> catch(e => {
-            Js.log2("[App] ServiceWorker registration failed (expected): ", e);
-            dispatch(SuccessfulFailure);
-            resolve(None)
-          })
-        );
-      })
-    } else {
-      dispatch(Supported(false));
-      Js.log("[App] Browser does *not* support service workers");
+    switch(ServiceWorker.maybeServiceWorker) {
+      | None => {
+         dispatch(Supported(false));
+        Js.log("[App] Browser does *not* support service workers");
+      }
+      | Some(worker) => {
+        Js.log("[App] Browser supports service workers");
+        dispatch(Supported(true));
+        open ServiceWorker;
+        Window.addEventListener("load", () => {
+          Js.Promise.(worker->register("demo-sw.js")
+            |> then_((b:ServiceWorker.Registration.t) => {
+              Js.log("[App] ServiceWorker registration successful with scope: " ++ b##scope);
+              dispatch(Registered(b))
+              resolve(Some(b));
+            })
+            |> catch(e => {
+              Js.log2("[App] ServiceWorker registration failed (expected): ", e);
+              resolve(None)
+            })
+          ) |> ignore;
+          Js.Promise.(worker->register("nonexistant-sw.js")
+            |> then_((b:ServiceWorker.Registration.t) => {
+              resolve(Some(b));
+            })
+            |> catch(e => {
+              Js.log2("[App] ServiceWorker registration failed (expected): ", e);
+              dispatch(SuccessfulFailure);
+              resolve(None)
+            })
+          ) |> ignore;
+        });
+      }
     }
     None;
   });
   let unregisterServiceWorker = (_) => {
     switch (state.registration) {
       | Some(registration) => {
-        Js.Promise.(registration#unregister()
+        Js.Promise.(registration##unregister()
           |> then_((success:bool) => {
             if (success == true) {
               Js.log("[App] ServiceWorker unregister success");
@@ -111,13 +115,13 @@ let make = () => {
       switch(state.registration) {
         | None => ReasonReact.null
         | Some(registration) => {
-          switch (registration#worker) {
+          switch (Js.Nullable.toOption(registration##active)) {
             | None => ReasonReact.null
             | Some(x) => {
               <table>
                 <tbody>
-                  <tr><td>{string("Script URL")}</td><td>{string(x.scriptURL)}</td></tr>
-                  <tr><td>{string("Current State")}</td><td>{string(x.state)}</td></tr>
+                  <tr><td>{string("Script URL")}</td><td>{string(x##scriptURL)}</td></tr>
+                  <tr><td>{string("Current State")}</td><td>{string(x##state)}</td></tr>
                   // <tr><td>{string("State Found In Registration")}</td><td>
                   //   {string({switch (registration.active, registration.waiting, registration.installing) {
                   //     | (Some(_), _, _) => "active"
@@ -135,16 +139,21 @@ let make = () => {
     }
     <h2>{string("Service Worker from Controller")}</h2>
     {
-      switch(ServiceWorker.getController()) {
-        | None => ReasonReact.null
-        | Some(x) => {
-          <table>
-            <tbody>
-              <tr><td>{string("Script URL")}</td><td>{string(x.scriptURL)}</td></tr>
-              <tr><td>{string("State")}</td><td>{string(x.state)}</td></tr>
-            </tbody>
-          </table>
+      switch(ServiceWorker.maybeServiceWorker) {
+        | Some(container)=> {
+          switch (Js.Nullable.toOption(container##controller)) {
+            | Some(x:ServiceWorker.t) => {
+              <table>
+                <tbody>
+                  <tr><td>{string("Script URL")}</td><td>{string(x##scriptURL)}</td></tr>
+                  <tr><td>{string("State")}</td><td>{string(x##state)}</td></tr>
+                </tbody>
+              </table>
+            }
+            | _ => ReasonReact.null
+          }
         }
+        | None => ReasonReact.null
       }
     }
     <h2>{string("Offline Feature")}</h2>

@@ -3,13 +3,13 @@ open DivertiseasiaBsServiceWorker;
 
 type state = {
   supported: bool,
-  registration: option(ServiceWorker.ServiceWorkerRegistration.t),
+  registration: option(ServiceWorker.Registration.t),
   unregisterSuccess: bool,
 };
 
 type action =
   | Supported
-  | Registered(ServiceWorker.ServiceWorkerRegistration.t)
+  | Registered(ServiceWorker.Registration.t)
   | UnregisterSuccess;
 
 let successIndicator = (condition:bool, id:string) => {
@@ -34,27 +34,35 @@ let make = () => {
       }
   );
   React.useEffect0(() => {
-    if (ServiceWorker.isSupported()) {
-      dispatch(Supported);
-      ServiceWorker.windowAddEventListener("load", () => {
-        Js.Promise.(ServiceWorker.register("demo-sw.js")
-          |> then_((b:ServiceWorker.ServiceWorkerRegistration.t) => {
-            dispatch(Registered(b))
-            resolve(Some(b));
-          })
-          |> catch(e => {
-            Js.log2("[App] ServiceWorker registration failed (expected): ", e);
-            resolve(None)
-          })
-        ) |> ignore;
-      })
-    }
+    switch(ServiceWorker.maybeServiceWorker) {
+      | None => {
+        Js.log("[App] Browser does *not* support service workers");
+      }
+      | Some(worker) => {
+        Js.log("[App] Browser supports service workers");
+        dispatch(Supported);
+        open ServiceWorker;
+        Window.addEventListener("load", () => {
+          Js.Promise.(worker->register("demo-sw.js")
+            |> then_((b:ServiceWorker.Registration.t) => {
+              Js.log("[App] ServiceWorker registration successful with scope: " ++ b##scope);
+              dispatch(Registered(b))
+              resolve(Some(b));
+            })
+            |> catch(e => {
+              Js.log2("[App] ServiceWorker registration failed: ", e);
+              resolve(None)
+            })
+          ) |> ignore;
+        });
+      }
+    };
     None;
   });
   let unregisterServiceWorker = (_) => {
     switch (state.registration) {
       | Some(registration) => {
-        Js.Promise.(registration#unregister()
+        Js.Promise.(registration##unregister()
           |> then_((success:bool) => {
             if (success == true) {
               Js.log("[App] ServiceWorker unregister success");
