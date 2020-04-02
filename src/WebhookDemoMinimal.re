@@ -54,7 +54,7 @@ let make = () => {
   switch(ServiceWorker.maybeServiceWorker, state.registration) {
     | (Some(worker), None) => {
       open ServiceWorker;
-      Js.Promise.(worker->getRegistration
+      Js.Promise.(worker->Container.getRegistration
         |> then_((b:ServiceWorker.Registration.t) => {
           dispatch(Registered(b))
           resolve(Some(b));

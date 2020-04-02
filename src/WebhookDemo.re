@@ -50,7 +50,7 @@ let make = () => {
         dispatch(Supported(true));
         open ServiceWorker;
         Window.addEventListener("load", () => {
-          Js.Promise.(worker->register("demo-sw.js")
+          Js.Promise.(worker->Container.register("demo-sw.js")
             |> then_((b:ServiceWorker.Registration.t) => {
               Js.log("[App] ServiceWorker registration successful with scope: " ++ b##scope);
               dispatch(Registered(b))
@@ -61,7 +61,7 @@ let make = () => {
               resolve(None)
             })
           ) |> ignore;
-          Js.Promise.(worker->register("nonexistant-sw.js")
+          Js.Promise.(worker->Container.register("nonexistant-sw.js")
             |> then_((b:ServiceWorker.Registration.t) => {
               resolve(Some(b));
             })
@@ -142,7 +142,7 @@ let make = () => {
       switch(ServiceWorker.maybeServiceWorker) {
         | Some(container)=> {
           switch (Js.Nullable.toOption(container##controller)) {
-            | Some(x:ServiceWorker.t) => {
+            | Some(x:ServiceWorker.controller) => {
               <table>
                 <tbody>
                   <tr><td>{string("Script URL")}</td><td>{string(x##scriptURL)}</td></tr>
