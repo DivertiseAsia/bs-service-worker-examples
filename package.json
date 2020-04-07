@@ -1,6 +1,6 @@
 {
   "name": "@divertiseasia/bs-service-worker-examples",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "scripts": {
     "build": "bsb -make-world",
     "start": "bsb -make-world -w -ws _ ",
@@ -25,7 +25,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@divertiseasia/bs-service-worker": "0.0.3",
+    "@divertiseasia/bs-service-worker": "0.0.4",
     "react": "^16.8.1",
     "react-dom": "^16.8.1",
     "reason-react": ">=0.7.0"
