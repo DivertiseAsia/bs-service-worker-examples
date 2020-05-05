@@ -1,5 +1,4 @@
 open ReasonReact;
-open DivertiseasiaBsServiceWorker;
 
 type state = {
   supported: bool,
