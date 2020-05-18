@@ -1,4 +1,5 @@
 open ReasonReact;
+open BsServiceWorker;
 
 type state = {
   supported: bool,
@@ -61,8 +62,9 @@ let make = () => {
       | None => {
         Js.log("[App] Browser does *not* support notifications");
       }
-      | Some(_) => {
+      | Some(x) => {
         open Notification;
+        Js.log(x->permission);
         createNotification(state.message)
         Js.log("[App] Attempting to notify by saying: " ++ state.message)
       }

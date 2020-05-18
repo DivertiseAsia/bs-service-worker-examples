@@ -1,4 +1,5 @@
 open ReasonReact;
+open BsServiceWorker;
 
 type state = {
   supported: bool,

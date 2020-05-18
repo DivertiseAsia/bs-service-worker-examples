@@ -1,5 +1,5 @@
 # bs-service-worker-examples
-Demoing [@divertiseasia/bs-service-worker](https://github.com/DivertiseAsia/bs-service-worker)
+Demoing [@divertise-asia/bs-service-worker](https://github.com/DivertiseAsia/bs-service-worker)
 
 # Installation
 

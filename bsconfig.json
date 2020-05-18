@@ -16,7 +16,7 @@
   "namespace": true,
   "bs-dependencies": [
     "reason-react",
-    "@divertiseasia/bs-service-worker"
+    "@divertise-asia/bs-service-worker"
   ],
   "refmt": 3
 }
