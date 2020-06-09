@@ -3,12 +3,12 @@ open BsServiceWorker;
 
 type state = {
   supported: bool,
-  permission: option(Notification.Permission.t),
+  permission: Notification.permissionType,
   message: string,
 };
 
 type action =
-  | ReadPermission(option(Notification.Permission.t))
+  | ReadPermission(Notification.permissionType)
   | ChangeMessage(string);
 
 let successIndicator = (condition:bool, id:string) => {
@@ -28,8 +28,8 @@ let make = () => {
       {
         supported: Notification.maybeNotification !== None, 
         permission: switch(Notification.maybeNotification) {
-          | None => None
-          | Some(x) => Some(x##permission)
+          | None => Unknow
+          | Some(x) => x##permission |> Notification.mapStrPermissionType
         },
         message: "Hello World!"
       }
@@ -43,14 +43,14 @@ let make = () => {
         Js.log("[App] Browser supports notifications");
         open Notification;
         Js.Promise.(notificationController->requestPermission
-          |> then_((p:Permission.t) => {
+          |> then_((p) => {
             Js.log2("[App] Notification permission is: ", p);
-            dispatch(ReadPermission(Some(p)))
+            dispatch(ReadPermission(p |> Notification.mapStrPermissionType))
             resolve();
           })
           |> catch(e => {
             Js.log2("[App] Notification permission failed: ", e);
-            dispatch(ReadPermission(None))
+            dispatch(ReadPermission(Unknow))
             resolve()
           })
         ) |> ignore;
@@ -76,14 +76,15 @@ let make = () => {
     <table>
       <tbody>
         <tr key="supported"><td>{string("Supports Notification?")}</td><td>{successIndicator(state.supported, "supported")}</td></tr>
+        
         <tr key="registration"><td>{string("Permission for this site:")}</td><td>{switch(state.permission) {
-          | Some(x) when x == Notification.Permission.granted => string("granted")
-          | Some(x) when x == Notification.Permission.denied => string("denied")
-          | Some(x) when x == Notification.Permission.default => string("default")
-          | _ => string("unknown")
+          | Notification.Granted => string("granted")
+          | Notification.Denied => string("denied")
+          | Notification.Default => string("default")
+          | Notification.Unknow => string("unknown")
         }}</td></tr>
         {switch(state.permission) {
-          | Some(x) when x == Notification.Permission.granted =>
+          | Notification.Granted =>
           {
             <tr key="permission">
               <td>{string("Send Message:")}</td>
@@ -93,7 +94,7 @@ let make = () => {
               </td>
             </tr>
           }
-          | Some(x) when x == Notification.Permission.denied =>
+          | Notification.Denied =>
           {
             <tr key="permission"><td>{string("Permission Denied:")}</td><td>{string("User has to allow manually")}</td></tr>
           }
