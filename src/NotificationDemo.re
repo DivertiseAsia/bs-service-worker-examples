@@ -116,6 +116,7 @@ let make = () => {
       <li><a href="demo-full.html">{string("Full Demo (all of the features)")}</a></li>
       <li><a href="indexJS.html">{string("Full Demo JS (JS equilvalent of Full Demo)")}</a></li>
       <li><a href="demo-notification.html">{string("Current:Notification Demo")}</a></li>
+      <li><a href="demo-registration.html">{string("Registration Demo")}</a></li>
       <li><a href="features.html">{string("See Features (this page can be cached)")}</a></li>
     </ul>
   </div>
