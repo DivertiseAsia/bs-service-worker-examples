@@ -1,26 +1,8 @@
 open ReasonReact;
 open BsServiceWorker;
 
-type state = {
-  supported: bool,
-  message: string,
-};
-
-type action =
-  | ChangeMessage(string);
-
 [@react.component]
 let make = () => {
-  let (state, dispatch) = React.useReducer(
-    (state, action) =>
-      switch (action) {
-        | ChangeMessage(message) => {...state, message: message}
-      },
-      {
-        supported: ServiceWorker.maybeServiceWorker !== None, 
-        message: "Hello World!"
-      }
-  );
   let serviceWorkerRegistration = (_) => {
     switch(ServiceWorker.maybeServiceWorker) {
       | None => {
@@ -28,9 +10,14 @@ let make = () => {
       }
       | Some(notificationController) => {
         Js.log("[App] Service worker supports");
-        Js.Promise.(ServiceWorker.Container.register(notificationController,"/src/RegistrationDemo.bs.js")
+        Js.Promise.(ServiceWorker.Container.register(notificationController,"demo-sw.js")
           |> then_((registration) => {
-            Js.log2("[App] Registration: ", registration);
+            Js.log2("[App] Registration sw: ", registration);
+            ServiceWorker.Container.addEventListener(registration, "updatefound", {
+              _ => {
+                Js.log2("update found",registration##installing);
+              }
+            })
             resolve();
           })
           |> catch(e => {
